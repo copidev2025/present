@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Regalo</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            min-width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: system-ui, sans-serif;
+            font-size: 1.5rem;
+            position: relative; /* <-- Añade esto */
+        }
+        .fade-text, .fade-img {
+            opacity: 0;
+            transition: opacity 1s;
+            text-align: center;
+            max-width: 90vw;
+            line-height: 1.4;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .fade-text.visible, .fade-img.visible {
+            opacity: 1;
+        }
+        .fade-img img {
+            max-width: 80vw;
+            max-height: 70vh;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+            /* Quita margin y display:block para heredar el centrado del padre */
+        }
+        .triangle {
+            margin: 18px auto 0 auto;
+            width: 0;
+            height: 0;
+            border-left: 16px solid transparent;
+            border-right: 16px solid transparent;
+            border-top: 18px solid #fff;
+            animation: blink 1s steps(2, start) infinite;
+            visibility: visible; /* por defecto visible */
+        }
+        .triangle.invisible {
+            visibility: hidden;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .cartucho-zoom {
+            animation: zoomInCartucho 1.2s forwards;
+        }
+
+        @keyframes zoomInCartucho {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+            80% {
+                transform: translate(-50%, -50%) scale(2.5);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(3.5);
+                opacity: 0;
+            }
+        }
+        #genie {
+            display: none;
+            position: absolute;
+            left: 50%;
+            top: calc(50% + 90px); /* Ajusta '90px' para subir o bajar el genio */
+            transform: translateX(-50%);
+            width: 120px;
+            max-width: 35vw;
+            opacity: 0.5;
+            z-index: 51;
+            pointer-events: none;
+            animation: genie-blink 2.5s infinite;
+            transition: opacity 1s;
+        }
+        #genie.visible {
+            display: block;
+        }
+        #genie.full {
+            opacity: 1;
+            animation: none;
+            transition: opacity 1s;
+        }
+        #genie.fadeout {
+            opacity: 0 !important;
+            transition: opacity 0.7s;
+        }
+        @keyframes genie-blink {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.9; }
+        }
+        #hornet-container {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            /* width: 100%;  <-- Elimina o comenta esta línea */
+        }
+        #hornet-img {
+            margin-bottom: 18px;
+        }
+        #hornet-title {
+            display: none;
+            margin-top: 18px;
+            max-width: 70vw;
+            opacity: 0;
+            transition: opacity 1.5s;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #premio-box {
+            opacity: 1;
+            margin-bottom: 48px; /* Aumenta este valor para más separación */
+            margin-top: -20px;
+        }
+        @keyframes touch-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+        #cartucho.fade-img {
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            position: absolute;
+            text-align: center;
+        }
+    </style>
+    <script>
+        // Si NO estamos en p2.html, redirige a p2.html
+        if (!window.location.pathname.endsWith('p2.html')) {
+            window.location.href = 'p2.html';
+        }
+        // Si es recarga o navegación atrás, permanece en p2.html
+        // (No hace falta más, ya que p2.html es el destino)
+    </script>
+</head>
+<body>
+    <div id="frase" class="fade-text">
+        <span id="frase-text"></span>
+        <div id="triangle" class="triangle"></div>
+    </div>
+    <img id="genie" src="images/genie.png" alt="Genio">
+    <div id="cartucho" class="fade-img" style="display:none;">
+        <img src="images/cartucho-sin.png" alt="Cartucho regalo" id="cartucho-img">
+        <img id="touch-icon" src="images/touch.png" alt="Toca aquí"
+             style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:60px; pointer-events:none; animation: touch-blink 1s steps(2, start) infinite; z-index:2;">
+    </div>
+    <div id="pantalla-negra" style="display:none;position:fixed;inset:0;background:#000;z-index:999;">
+        <div id="hornet-container">
+            <div id="premio-box" style="display:none; margin-bottom: 28px; background:#b30000; color:#fff; font-weight:bold; border-radius:18px; padding:14px 28px; font-size:1.3rem; box-shadow:0 2px 12px rgba(0,0,0,0.25); max-width:90vw; margin-left:auto; margin-right:auto;">
+                1 Copia Física/Digital
+            </div>
+            <img id="hornet-img" src="images/hornet.png" alt="Hornet"
+                 style="display:none;max-width:80vw;max-height:80vh;opacity:0;transition:opacity 1.5s;">
+            <img id="hornet-title" src="images/title.png" alt="Título"
+                 style="display:none;margin-top:18px;max-width:70vw;opacity:0;transition:opacity 1.5s;">
+        </div>
+    </div>
+    <script>
+        if (performance.navigation.type === 1) {
+            window.location.href = "index.html";
+        }
+
+        const frases = [
+            "¿Otra vez tú...?\n",
+            "Pensé que ya habías tenido suficiente.\n",
+            "¿No te cansas de pedir?\n",
+            "Bueno… Supongo que la curiosidad también es un poder.\n",
+            "...Está bien. Pero esta es la última. ¿Entendido?\n",
+            "(¡Has recibido un regalo especial! 🎁)"
+        ];
+        let idx = 0;
+        const fraseDiv = document.getElementById('frase');
+        const fraseText = document.getElementById('frase-text');
+        const triangle = document.getElementById('triangle');
+        const cartuchoDiv = document.getElementById('cartucho');
+        const cartuchoImg = document.getElementById('cartucho-img');
+        const pantallaNegra = document.getElementById('pantalla-negra');
+        const genie = document.getElementById('genie');
+
+        function mostrarFrase(i) {
+            fraseDiv.classList.remove('visible');
+            if (i === frases.length - 1) {
+                fraseDiv.removeEventListener('click', avanzarFrase);
+            }
+            setTimeout(() => {
+                fraseText.textContent = frases[i];
+                fraseDiv.classList.add('visible');
+                if (i < frases.length - 1) {
+                    triangle.classList.remove('invisible');
+                } else {
+                    triangle.classList.add('invisible');
+                    setTimeout(() => {
+                        if (idx === frases.length - 1) {
+                            triangle.classList.remove('invisible');
+                            fraseDiv.addEventListener('click', avanzarFrase);
+                        }
+                    }, 1500);
+                }
+                if (i === 0) genie.classList.add('visible');
+                if (i === frases.length - 1) genie.classList.add('full');
+            }, 400);
+        }
+
+        function avanzarFrase() {
+            fraseDiv.classList.remove('visible');
+            idx++;
+            if (idx === frases.length - 1) {
+                genie.classList.add('fadeout');
+                setTimeout(() => {
+                    mostrarFrase(idx);
+                }, 700);
+            } else if (idx < frases.length) {
+                setTimeout(() => {
+                    mostrarFrase(idx);
+                }, 400);
+            } else {
+                fraseDiv.removeEventListener('click', avanzarFrase);
+                setTimeout(() => {
+                    fraseDiv.style.display = 'none';
+                    cartuchoDiv.style.display = 'block';
+                    setTimeout(() => {
+                        cartuchoDiv.classList.add('visible');
+                    }, 50);
+                }, 700);
+            }
+        }
+
+        // Espera 10 segundos antes de mostrar el primer texto
+        setTimeout(() => {
+            mostrarFrase(idx);
+            fraseDiv.addEventListener('click', avanzarFrase);
+        }, 10000);
+
+        cartuchoImg.addEventListener('click', () => {
+            document.getElementById('touch-icon').style.display = 'none';
+            cartuchoDiv.classList.add('cartucho-zoom');
+            setTimeout(() => {
+                cartuchoDiv.style.display = 'none';
+                pantallaNegra.style.display = 'block';
+                genie.classList.remove('visible', 'full');
+
+                const hornetImg = document.getElementById('hornet-img');
+                const hornetTitle = document.getElementById('hornet-title');
+                const premioBox = document.getElementById('premio-box');
+                hornetImg.style.display = 'block';
+                hornetTitle.style.display = 'block';
+
+                // Mostrar el premio box tras 0.5s
+                setTimeout(() => {
+                    premioBox.style.display = 'block';
+                    setTimeout(() => {
+                        hornetImg.style.opacity = '1';
+                        hornetTitle.style.opacity = '1';
+                        premioBox.style.opacity = '1';
+                    }, 100);
+                }, 500);
+            }, 1200);
+        });
+    </script>
+</body>
+</html>
