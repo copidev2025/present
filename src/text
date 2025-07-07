@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Responsive Image Page</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <style>
+        /* styles/style.css */
+        .dice-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4); /* semitransparente */
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        .dice-modal.active {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <div class="image-container">
+        <div class="main-top-text">Parece ser que ha sido el cumpleaños de alguien...</div>
+        <img src="images/mainphoto.jpeg" alt="Main Image" class="responsive-image">
+    </div>
+    <div id="dice-modal" class="dice-modal">
+        <div class="dice-box">
+            <span class="dice-text">Toca para tirar</span>
+            <img src="images/mp-dice-short.gif" alt="Dado girando" class="dice-gif" id="dice-gif">
+        </div>
+    </div>
+    <div id="gift-modal" class="dice-modal">
+        <div class="dice-box">
+            <span class="dice-text">ÁBRE TU REGALO</span>
+            <img src="images/present.gif" alt="Regalo animado" style="margin-top:18px;max-width:120px;display:block;">
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
